@@ -1,0 +1,46 @@
+# Site estático: nenhum build necessário. As páginas são geradas localmente
+# com `python3 tools/build.py` e commitadas.
+[build]
+  publish = "."
+
+# Subdomínio antigo da landing de hidráulica -> nova página
+[[redirects]]
+  from = "https://hidraulica.jainstalacoes.com/*"
+  to = "https://jainstalacoes.com/hidraulica/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.jainstalacoes.com/*"
+  to = "https://jainstalacoes.com/:splat"
+  status = 301
+  force = true
+
+# Atalhos
+[[redirects]]
+  from = "/encanador"
+  to = "/hidraulica/"
+  status = 301
+[[redirects]]
+  from = "/eletricista"
+  to = "/eletrica/"
+  status = 301
+[[redirects]]
+  from = "/telhado"
+  to = "/telhadista/"
+  status = 301
+[[redirects]]
+  from = "/privacidade.html"
+  to = "/privacidade/"
+  status = 301
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

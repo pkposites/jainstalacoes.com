@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Áreas atendidas em São Paulo e Grande SP | J.A Instalações</title>
-<meta name="description" content="A J.A Instalações atende toda a Grande São Paulo, com foco em bairros e condomínios de alto padrão: Moema, Brooklin, Campo Belo, Itaim Bibi, Vila Mariana, Morumbi, Alphaville, Granja Viana e região. Hidráulica, elétrica e telhados, atendimento 24h.">
+<meta name="description" content="Hidráulica, elétrica e telhados 24h em toda a Grande São Paulo, com foco em bairros de alto padrão como Moema, Itaim Bibi, Morumbi e Alphaville.">
 <link rel="canonical" href="https://jainstalacoes.com/areas-atendidas/">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:site_name" content="J.A Instalações">
 <meta property="og:title" content="Áreas atendidas em São Paulo e Grande SP | J.A Instalações">
-<meta property="og:description" content="A J.A Instalações atende toda a Grande São Paulo, com foco em bairros e condomínios de alto padrão: Moema, Brooklin, Campo Belo, Itaim Bibi, Vila Mariana, Morumbi, Alphaville, Granja Viana e região. Hidráulica, elétrica e telhados, atendimento 24h.">
+<meta property="og:description" content="Hidráulica, elétrica e telhados 24h em toda a Grande São Paulo, com foco em bairros de alto padrão como Moema, Itaim Bibi, Morumbi e Alphaville.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://jainstalacoes.com/areas-atendidas/">
 <meta property="og:image" content="https://jainstalacoes.com/assets/og-cover.jpg">
@@ -18,7 +18,7 @@
 <meta property="og:image:alt" content="J.A Instalações — elétrica, hidráulica e telhados em São Paulo">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Áreas atendidas em São Paulo e Grande SP | J.A Instalações">
-<meta name="twitter:description" content="A J.A Instalações atende toda a Grande São Paulo, com foco em bairros e condomínios de alto padrão: Moema, Brooklin, Campo Belo, Itaim Bibi, Vila Mariana, Morumbi, Alphaville, Granja Viana e região. Hidráulica, elétrica e telhados, atendimento 24h.">
+<meta name="twitter:description" content="Hidráulica, elétrica e telhados 24h em toda a Grande São Paulo, com foco em bairros de alto padrão como Moema, Itaim Bibi, Morumbi e Alphaville.">
 <meta name="twitter:image" content="https://jainstalacoes.com/assets/og-cover.jpg">
 <meta name="twitter:image:alt" content="J.A Instalações — elétrica, hidráulica e telhados em São Paulo">
 <meta name="theme-color" content="#0a2540">
@@ -205,7 +205,7 @@
   "@type": "CollectionPage",
   "name": "Áreas atendidas",
   "url": "https://jainstalacoes.com/areas-atendidas/",
-  "description": "A J.A Instalações atende toda a Grande São Paulo, com foco em bairros e condomínios de alto padrão: Moema, Brooklin, Campo Belo, Itaim Bibi, Vila Mariana, Morumbi, Alphaville, Granja Viana e região. Hidráulica, elétrica e telhados, atendimento 24h.",
+  "description": "Hidráulica, elétrica e telhados 24h em toda a Grande São Paulo, com foco em bairros de alto padrão como Moema, Itaim Bibi, Morumbi e Alphaville.",
   "inLanguage": "pt-BR",
   "isPartOf": {
     "@type": "WebSite",
@@ -237,7 +237,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/styles.css?v=7a73e772">
+<link rel="stylesheet" href="/assets/styles.css?v=36e290e4">
 <!-- Google Consent Mode (default: negado até aceite) -->
 <script>
 window.dataLayer = window.dataLayer || [];
@@ -485,6 +485,49 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </div>
 
+<section class="section contact" id="contato">
+  <div class="container">
+    <h2>Solicite seu atendimento</h2>
+    <p class="section-sub">Preencha o formulário e fale conosco pelo WhatsApp</p>
+
+    <form class="form" id="contactForm" method="POST" name="contato-areas" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="contato-areas">
+      <p class="hp-field"><label>Não preencher: <input name="bot-field"></label></p>
+      <label>
+        Nome
+        <input type="text" id="fname" name="fname" required placeholder="Seu nome completo" autocomplete="name">
+      </label>
+      <label>
+        Telefone / WhatsApp para retorno
+        <input type="tel" id="fphone" name="fphone" required placeholder="(11) 90000-0000" autocomplete="tel">
+      </label>
+      <label>
+        Tipo de serviço
+        <select id="fservice" name="fservice" required>
+          <option value="" disabled selected>Selecione um serviço</option>
+          <option value="Hidráulica / Encanador">Hidráulica / Encanador</option>
+          <option value="Elétrica / Eletricista">Elétrica / Eletricista</option>
+          <option value="Telhado / Telhadista">Telhado / Telhadista</option>
+          <option value="Mais de um serviço">Mais de um serviço</option>
+        </select>
+      </label>
+      <label>
+        Região de SP
+        <input type="text" id="fregion" name="fregion" required placeholder="Ex: Zona Sul, Moema, etc.">
+      </label>
+      <button type="submit" class="btn btn-primary btn-lg btn-block">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.48 1.34 5L2 22l5.2-1.36a9.94 9.94 0 0 0 4.84 1.23h.01c5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2zm5.83 14.24c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.11.11-1.79-.11a15.7 15.7 0 0 1-1.6-.6c-2.82-1.22-4.65-4.06-4.79-4.25-.14-.19-1.15-1.53-1.15-2.92 0-1.39.73-2.07.99-2.35.26-.28.56-.35.75-.35h.55c.18 0 .42-.07.65.5.24.58.82 2 .89 2.14.07.14.12.31.02.5-.09.19-.14.31-.28.47-.14.16-.29.36-.42.48-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.68-.79.86-1.06.18-.28.36-.23.6-.14.24.09 1.55.73 1.81.86.26.14.44.2.5.32.07.12.07.68-.17 1.36z"/></svg>
+        Enviar via WhatsApp
+      </button>
+    </form>
+
+    <div class="direct-contacts">
+      <a href="https://wa.me/551150922446" target="_blank" rel="noopener">📱 WhatsApp: (11) 5092-2446</a>
+      <a href="tel:+551150922446">☎️ Telefone: (11) 5092-2446</a>
+    </div>
+  </div>
+</section>
+
 <footer class="site-footer">
   <div class="container">
     <div class="logo footer-logo">
@@ -492,6 +535,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span class="logo-text">J.A Instalações</span>
     </div>
     <p>Elétrica, hidráulica e telhados • Residências, prédios e comércios • São Paulo - SP</p>
+    <div class="footer-contacts">
+      <a class="footer-contact" href="https://wa.me/551150922446" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.48 1.34 5L2 22l5.2-1.36a9.94 9.94 0 0 0 4.84 1.23h.01c5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2zm5.83 14.24c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.11.11-1.79-.11a15.7 15.7 0 0 1-1.6-.6c-2.82-1.22-4.65-4.06-4.79-4.25-.14-.19-1.15-1.53-1.15-2.92 0-1.39.73-2.07.99-2.35.26-.28.56-.35.75-.35h.55c.18 0 .42-.07.65.5.24.58.82 2 .89 2.14.07.14.12.31.02.5-.09.19-.14.31-.28.47-.14.16-.29.36-.42.48-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.68-.79.86-1.06.18-.28.36-.23.6-.14.24.09 1.55.73 1.81.86.26.14.44.2.5.32.07.12.07.68-.17 1.36z"/></svg> WhatsApp (11) 5092-2446</a>
+      <a class="footer-contact" href="tel:+551150922446">📞 Ligar (11) 5092-2446</a>
+    </div>
     <nav class="footer-nav" aria-label="Rodapé">
       <a href="/">Início</a>
       <a href="/hidraulica/">Hidráulica</a>
@@ -503,7 +550,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <a href="/contato/">Contato</a>
       <a href="/privacidade/">Política de Privacidade</a>
     </nav>
-    <p class="footer-meta">CNPJ: 65.380.889/0001-25 · <a href="mailto:J.a.tecnica@hotmail.com">J.a.tecnica@hotmail.com</a></p>
+    <p class="footer-meta">CNPJ: 65.380.889/0001-25 · <a class="footer-email" href="mailto:J.a.tecnica@hotmail.com">J.a.tecnica@hotmail.com</a></p>
     <p class="footer-meta">
       <a href="https://www.google.com/maps/search/?api=1&amp;query=Rua+Arnaldo+Magniccaro,+827+-+Vila+Gea,+S%C3%A3o+Paulo+-+SP,+04691-060" target="_blank" rel="noopener">📍 Rua Arnaldo Magniccaro, 827 - Vila Gea, São Paulo - SP, 04691-060</a>
     </p>

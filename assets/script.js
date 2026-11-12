@@ -233,11 +233,15 @@ if (form) {
     const region = document.getElementById('fregion').value.trim();
 
     // Envia os dados para o Netlify Forms, para consulta rápida no painel do Netlify
-    fetch('/', {
+    // Envia para o Netlify Forms. O WhatsApp abre em seguida de qualquer jeito;
+    // se o registro no site falhar, avisamos e oferecemos o WhatsApp de novo.
+    const netlifyRequest = fetch('/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: encodeFormData({ 'form-name': form.getAttribute('name'), fname: name, fphone: phone, fservice: service, fregion: region })
-    }).catch(() => {});
+    }).then((res) => {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+    });
 
     const source = getLeadSource();
     const message = `${PAGE.greeting}\n\nNome: ${name}\nTelefone: ${phone}\nServiço: ${service}\nRegião: ${region}${buildLeadSourceBlock(source)}`;
@@ -258,7 +262,38 @@ if (form) {
     }
 
     window.open(destino, '_blank', 'noopener');
+
+    netlifyRequest.then(() => {
+      showFormStatus('ok', 'Pedido recebido! Se o WhatsApp não abriu, toque no botão abaixo para continuar a conversa.', destino);
+    }).catch((err) => {
+      trackConversion('form_error', { page: PAGE.slug, error: String(err && err.message || err) });
+      showFormStatus('error', 'Não conseguimos registrar seu pedido pelo site agora. Fale com a gente direto pelo WhatsApp que atendemos na hora.', destino);
+    });
   });
+}
+
+function showFormStatus(kind, text, waUrl) {
+  if (!form) return;
+  let box = document.getElementById('formStatus');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'formStatus';
+    box.setAttribute('role', 'status');
+    box.setAttribute('aria-live', 'polite');
+    form.insertAdjacentElement('afterend', box);
+  }
+  box.className = 'form-status form-status-' + kind;
+  box.textContent = '';
+  const p = document.createElement('p');
+  p.textContent = text;
+  const a = document.createElement('a');
+  a.className = 'btn btn-primary btn-block';
+  a.href = waUrl;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.textContent = 'Abrir o WhatsApp';
+  box.appendChild(p);
+  box.appendChild(a);
 }
 
 document.addEventListener('keydown', (e) => {

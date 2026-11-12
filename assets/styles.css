@@ -637,3 +637,65 @@ a.logo { text-decoration: none; }
 .section .service-links a[href*="wa.me"] { border-bottom-color: var(--green); }
 .section .service-links a[href*="wa.me"]:not(.btn) { color: #fff; }
 .section .service-links a:not([href*="wa.me"]):not(.btn) { color: var(--blue-700); }
+
+/* ===== Revisão do Supervisor de Sites ===== */
+
+/* Contraste: botões verdes com texto branco num verde mais escuro (≈4,6:1) */
+:root { --wa-btn: #128C4A; --wa-btn-hover: #0e7a40; }
+.btn-primary { background: var(--wa-btn); box-shadow: 0 4px 14px rgba(18,140,74,0.30); }
+.btn-primary:hover { background: var(--wa-btn-hover); }
+.section .service-links a[href*="wa.me"] { background: var(--wa-btn); border-color: var(--wa-btn); box-shadow: 0 4px 14px rgba(18,140,74,0.30); }
+.section .service-links a[href*="wa.me"]:hover { background: var(--wa-btn-hover); border-color: var(--wa-btn-hover); }
+
+/* Alvos de toque mínimos de 44px */
+.section .service-links a, .cross-links a, .cta-row .btn { min-height: 44px; }
+.direct-contacts a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; }
+.footer-contacts { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 14px 0 6px; }
+.footer-contact {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px;
+  border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.45); color: #fff;
+  font-weight: 600; font-size: 14px; text-decoration: none;
+}
+.footer-contact:hover { background: rgba(255,255,255,0.10); }
+.footer-nav a { display: inline-flex; align-items: center; min-height: 44px; }
+.site-footer .footer-email { color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; display: inline-block; padding: 10px 0; }
+
+/* Menu do celular: fade na borda indicando que há mais itens */
+@media (max-width: 859px) {
+  .subnav {
+    padding-right: 44px;
+    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 44px), transparent 100%);
+    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 44px), transparent 100%);
+  }
+  .subnav a { padding: 6px 11px; }
+}
+
+/* Mensagem do formulário (sucesso/erro) */
+.form-status { max-width: 480px; margin: 16px auto 0; padding: 14px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+.form-status p { margin: 0 0 10px; }
+.form-status-ok { background: #e8f9ef; border: 1px solid #b7ebcb; color: #0b5a2f; }
+.form-status-error { background: #fff4e5; border: 1px solid #ffd59a; color: #7a4b00; }
+
+/* Banner de cookies do Lead Hub: compacto e sem cobrir CTAs.
+   (O banner é criado pelo tracker.js com estilos inline; aqui só ajustamos o visual.) */
+[data-leadhub-consent] {
+  left: 0 !important; right: 0 !important; bottom: 0 !important; max-width: none !important; margin: 0 !important;
+  border-radius: 14px 14px 0 0 !important; padding: 8px 14px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+  font-size: 12px !important; line-height: 1.35 !important; box-shadow: 0 -4px 18px rgba(0,0,0,.18) !important;
+}
+[data-leadhub-consent] > p { margin: 0 0 6px !important; font-size: 12px !important; }
+[data-leadhub-consent] > div { gap: 8px !important; }
+[data-leadhub-consent] button { min-height: 36px !important; font-size: 13px !important; }
+body:has([data-leadhub-consent]) { padding-bottom: 132px; }
+body:has([data-leadhub-consent]) .fab-whatsapp { bottom: 140px; }
+@media (min-width: 720px) {
+  [data-leadhub-consent] {
+    display: flex !important; align-items: center !important; gap: 16px !important;
+    border-radius: 0 !important; padding: 8px 24px !important;
+  }
+  [data-leadhub-consent] > p { margin: 0 !important; flex: 1 1 auto; }
+  [data-leadhub-consent] > div { flex: 0 0 auto; }
+  [data-leadhub-consent] button { flex: 0 0 auto !important; padding: 0 16px !important; }
+  body:has([data-leadhub-consent]) { padding-bottom: 64px; }
+  body:has([data-leadhub-consent]) .fab-whatsapp { bottom: 80px; }
+}

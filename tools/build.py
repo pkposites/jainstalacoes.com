@@ -1399,10 +1399,14 @@ def footer(p, current):
       <span class="logo-text">J.A Instalações</span>
     </div>
     <p>{E(tag)}</p>
+    <div class="footer-contacts">
+      <a class="footer-contact" href="https://wa.me/{PHONE}" target="_blank" rel="noopener">{WA_SVG.format(s=18)} WhatsApp {PHONE_FMT}</a>
+      <a class="footer-contact" href="tel:+{PHONE}">📞 Ligar {PHONE_FMT}</a>
+    </div>
     <nav class="footer-nav" aria-label="Rodapé">
 {links}
     </nav>
-    <p class="footer-meta">CNPJ: {CNPJ} · <a href="mailto:{EMAIL}">{EMAIL}</a></p>
+    <p class="footer-meta">CNPJ: {CNPJ} · <a class="footer-email" href="mailto:{EMAIL}">{EMAIL}</a></p>
     <p class="footer-meta">
       <a href="https://www.google.com/maps/search/?api=1&amp;query={MAPS_Q}" target="_blank" rel="noopener">📍 {E(ADDRESS)}</a>
     </p>
@@ -1574,8 +1578,10 @@ def build_region_page(v, r):
     noun = vp["noun"]
     h1 = f"{noun} {r['in']}"
     title = f"{h1} | J.A Instalações"
-    description = (f"{noun} {r['in']}: {vp['name'].lower()} para residências, prédios e comércios. "
-                   f"Peça seu orçamento pelo WhatsApp com a J.A Instalações.")
+    _ex = [x.strip() for x in re.split(r",| e ", re.sub(r"\([^)]*\)", "", r["examples"])) if x.strip()]
+    description = f"{noun} {r['in']}: atendimento em {', '.join(_ex[:3])} e região. Orçamento pelo WhatsApp com a J.A Instalações."
+    if len(description) > 155:
+        description = f"{noun} {r['in']}: atendimento em {', '.join(_ex[:2])} e região. Orçamento pelo WhatsApp."
     p = inner_p(v, body_class=f"page-{v}", title=title, eyebrow=f"{noun} · {r['name']}", h1=h1, sub=d["lead"],
                 hero_icon=VERTICAL_ICON[v],
                 badges=["📍 Visita técnica sujeita a análise e deslocamento", "🧾 Nota fiscal e garantia", REVIEW_BADGE],
@@ -1721,9 +1727,8 @@ def build_areas_page():
     canonical = f"{SITE}/{path}"
     register("/" + path, "Áreas atendidas")
     title = "Áreas atendidas em São Paulo e Grande SP | J.A Instalações"
-    description = ("A J.A Instalações atende toda a Grande São Paulo, com foco em bairros e condomínios de alto "
-                   "padrão: Moema, Brooklin, Campo Belo, Itaim Bibi, Vila Mariana, Morumbi, Alphaville, Granja Viana e região. "
-                   "Hidráulica, elétrica e telhados, atendimento 24h.")
+    description = ("Hidráulica, elétrica e telhados 24h em toda a Grande São Paulo, com foco em bairros de alto "
+                   "padrão como Moema, Itaim Bibi, Morumbi e Alphaville.")
     p = inner_p(None, body_class="page-home", title=title, eyebrow="Atendimento em toda a Grande São Paulo",
                 h1="Áreas atendidas em São Paulo e Grande São Paulo",
                 sub="Atendemos toda a Grande São Paulo, com atenção especial a bairros e condomínios de alto padrão.",
@@ -1799,7 +1804,7 @@ def build_areas_page():
                breadcrumb_ld([(n, SITE + u) for n, u in crumbs])]
     out = head(p, canonical, title, description, schemas)
     out += header("/" + path, "/contato/") + breadcrumbs(crumbs) + hero(p) + body
-    out += lead_gate(p) + footer(p, "/" + path) + page_config(p)
+    out += lead_gate(p) + contact_section(p) + footer(p, "/" + path) + page_config(p)
     write(path, out)
 
 
@@ -1839,7 +1844,7 @@ def build_faq_page():
                faq_ld(all_items), breadcrumb_ld([(n, SITE + u) for n, u in crumbs])]
     out = head(p, canonical, title, description, schemas)
     out += header("/" + path, "/contato/") + breadcrumbs(crumbs) + hero(p) + body
-    out += lead_gate(p) + footer(p, "/" + path) + page_config(p)
+    out += lead_gate(p) + contact_section(p) + footer(p, "/" + path) + page_config(p)
     write(path, out)
 
 
@@ -1909,7 +1914,7 @@ def build_about_page():
                breadcrumb_ld([(n, SITE + u) for n, u in crumbs])]
     out = head(p, canonical, title, description, schemas)
     out += header("/" + path, "/contato/") + breadcrumbs(crumbs) + hero(p) + body
-    out += lead_gate(p) + footer(p, "/" + path) + page_config(p)
+    out += lead_gate(p) + contact_section(p) + footer(p, "/" + path) + page_config(p)
     write(path, out)
 
 

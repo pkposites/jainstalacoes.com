@@ -1,22 +1,46 @@
-# Site estático: nenhum build necessário. As páginas são geradas localmente
-# com `python3 tools/build.py` e commitadas.
+# Site estático: nenhum build necessário no Netlify. As páginas, robots.txt, sitemap.xml e
+# llms.txt são gerados localmente com `python3 tools/build.py` e commitados.
 [build]
   publish = "."
 
-# Subdomínio antigo da landing de hidráulica -> nova página
+# ---------------------------------------------------------------------------
+# Redirects. O Netlify aplica a PRIMEIRA regra que casar, na ordem deste arquivo.
+# Uma regra "/caminho" também casa "/caminho/" (confirmado nos testes de /encanador
+# e /eletricista antes desta mudança), por isso não repetimos as variantes com barra.
+# Não há regra para /contato, /sobre, /faq nem /areas-atendidas: essas páginas agora existem
+# e o Netlify já redireciona "/contato" -> "/contato/" sozinho (pretty URLs). Uma regra
+# "/contato" -> "/contato/" poderia gerar loop.
+# ---------------------------------------------------------------------------
+
+# Subdomínio antigo da landing de hidráulica -> nova página.
+# ATENÇÃO: esta regra SÓ VALE depois que o DNS de hidraulica.jainstalacoes.com apontar para ESTE
+# projeto Netlify. Hoje o CNAME ainda aponta para encanadorjalp.netlify.app (projeto antigo),
+# então o pedido nem chega aqui. O ajuste de DNS/domínio está FORA do escopo deste repositório.
 [[redirects]]
   from = "https://hidraulica.jainstalacoes.com/*"
   to = "https://jainstalacoes.com/hidraulica/:splat"
   status = 301
   force = true
 
+# www -> apex
 [[redirects]]
   from = "https://www.jainstalacoes.com/*"
   to = "https://jainstalacoes.com/:splat"
   status = 301
   force = true
 
-# Atalhos
+# /index.html e /index.php -> raiz (index.html existe como arquivo, por isso force = true)
+[[redirects]]
+  from = "/index.html"
+  to = "/"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/index.php"
+  to = "/"
+  status = 301
+
+# Atalhos já existentes
 [[redirects]]
   from = "/encanador"
   to = "/hidraulica/"
@@ -33,11 +57,182 @@
   from = "/privacidade.html"
   to = "/privacidade/"
   status = 301
+[[redirects]]
+  from = "/hidraulica.html"
+  to = "/hidraulica/"
+  status = 301
+[[redirects]]
+  from = "/eletrica.html"
+  to = "/eletrica/"
+  status = 301
+[[redirects]]
+  from = "/telhadista.html"
+  to = "/telhadista/"
+  status = 301
 
+# URLs do site antigo ("Marido de Aluguel, Construções e Reformas") -> verticais
+[[redirects]]
+  from = "/eletricistas"
+  to = "/eletrica/"
+  status = 301
+[[redirects]]
+  from = "/encanadores"
+  to = "/hidraulica/"
+  status = 301
+[[redirects]]
+  from = "/telhadistas"
+  to = "/telhadista/"
+  status = 301
+[[redirects]]
+  from = "/telhados"
+  to = "/telhadista/"
+  status = 301
+
+# Hidráulica -> páginas profundas
+[[redirects]]
+  from = "/encanador-caca-vazamento"
+  to = "/hidraulica/deteccao-de-vazamentos/"
+  status = 301
+[[redirects]]
+  from = "/encanador-caca-vazamentos"
+  to = "/hidraulica/deteccao-de-vazamentos/"
+  status = 301
+[[redirects]]
+  from = "/caca-vazamento"
+  to = "/hidraulica/deteccao-de-vazamentos/"
+  status = 301
+[[redirects]]
+  from = "/vazamento"
+  to = "/hidraulica/deteccao-de-vazamentos/"
+  status = 301
+[[redirects]]
+  from = "/desentupimento"
+  to = "/hidraulica/desentupimento/"
+  status = 301
+
+# Contato / orçamento -> /contato/
+[[redirects]]
+  from = "/contato.html"
+  to = "/contato/"
+  status = 301
+[[redirects]]
+  from = "/orcamento"
+  to = "/contato/"
+  status = 301
+# /whatsapp -> /contato/ (em vez de wa.me, para não perder o rastreamento)
+[[redirects]]
+  from = "/whatsapp"
+  to = "/contato/"
+  status = 301
+
+# Institucional
+[[redirects]]
+  from = "/nos"
+  to = "/sobre/"
+  status = 301
+[[redirects]]
+  from = "/quem-somos"
+  to = "/sobre/"
+  status = 301
+[[redirects]]
+  from = "/avaliacoes"
+  to = "/#avaliacoes"
+  status = 301
+
+# Privacidade
+[[redirects]]
+  from = "/politica-de-privacidade"
+  to = "/privacidade/"
+  status = 301
+[[redirects]]
+  from = "/politicas-de-privacidade"
+  to = "/privacidade/"
+  status = 301
+[[redirects]]
+  from = "/privacy"
+  to = "/privacidade/"
+  status = 301
+
+# Serviços que o site novo não oferece como vertical -> home (melhor que 404)
+[[redirects]]
+  from = "/servicos"
+  to = "/"
+  status = 301
+[[redirects]]
+  from = "/instalacoes"
+  to = "/"
+  status = 301
+[[redirects]]
+  from = "/instalaçoes"
+  to = "/"
+  status = 301
+[[redirects]]
+  from = "/instala%C3%A7oes"
+  to = "/"
+  status = 301
+[[redirects]]
+  from = "/marido-de-aluguel"
+  to = "/"
+  status = 301
+[[redirects]]
+  from = "/pedreiros"
+  to = "/"
+  status = 301
+[[redirects]]
+  from = "/pintores"
+  to = "/"
+  status = 301
+[[redirects]]
+  from = "/reforma"
+  to = "/"
+  status = 301
+[[redirects]]
+  from = "/construcao"
+  to = "/"
+  status = 301
+
+# Áreas (atalhos antigos/prováveis) -> índice de áreas atendidas
+[[redirects]]
+  from = "/zona-sul"
+  to = "/areas-atendidas/"
+  status = 301
+[[redirects]]
+  from = "/zona-norte"
+  to = "/areas-atendidas/"
+  status = 301
+[[redirects]]
+  from = "/zona-leste"
+  to = "/areas-atendidas/"
+  status = 301
+[[redirects]]
+  from = "/zona-oeste"
+  to = "/areas-atendidas/"
+  status = 301
+[[redirects]]
+  from = "/grande-sao-paulo"
+  to = "/areas-atendidas/"
+  status = 301
+
+# /blog: sem regra de propósito (não há conteúdo; continua 404).
+
+# ---------------------------------------------------------------------------
+# Headers
+# ---------------------------------------------------------------------------
 [[headers]]
   for = "/assets/*"
   [headers.values]
+    # Cobre também logo, avatar-hero.webp e og-cover.jpg. Nomes sem hash: 7 dias.
     Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/favicon.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+
+[[headers]]
+  for = "/llms.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
 
 [[headers]]
   for = "/*"

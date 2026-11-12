@@ -224,6 +224,16 @@
     # Cobre também logo, avatar-hero.webp e og-cover.jpg. Nomes sem hash: 7 dias.
     Cache-Control = "public, max-age=604800"
 
+# CSS e JS: o navegador sempre confere se há versão nova (resposta 304 rápida quando não mudou).
+[[headers]]
+  for = "/assets/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+[[headers]]
+  for = "/assets/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 [[headers]]
   for = "/favicon.ico"
   [headers.values]

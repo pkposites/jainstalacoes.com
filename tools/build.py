@@ -19,6 +19,9 @@ from urllib.parse import quote
 from xml.sax.saxutils import escape as xml_escape
 
 ROOT = Path(__file__).resolve().parent.parent
+# Versão do CSS = hash do arquivo: muda sozinha a cada alteração e força o navegador a baixar de novo.
+import hashlib
+CSS_VERSION = hashlib.md5((ROOT / "assets" / "styles.css").read_bytes()).hexdigest()[:8]
 SITE = "https://jainstalacoes.com"
 
 # ============================================================================
@@ -916,7 +919,7 @@ def head(p, canonical, title, description, schemas=(), robots=None):
 {ld}<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/assets/styles.css?v={CSS_VERSION}">
 <!-- Google Consent Mode (default: negado até aceite) -->
 <script>
 window.dataLayer = window.dataLayer || [];

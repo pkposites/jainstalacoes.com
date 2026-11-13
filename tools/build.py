@@ -1447,7 +1447,7 @@ def build_landing(key):
         [("Serviços hidráulicos", "Encanador, desentupimento e detecção de vazamentos"),
          ("Serviços elétricos", "Instalações, reparos, tomadas, iluminação, quadros e disjuntores"),
          ("Serviços de telhado", "Reparo e troca de telhas, manutenção, calhas, rufos e infiltrações")]
-    schemas.append(business_ld(p["schema_type"], canonical, offers=offers, reviews=revs))
+    schemas.append(business_ld(p["schema_type"], canonical, offers=offers))
     faq = FAQ_VERTICAL.get(key)
     if key != "home":
         schemas.append(breadcrumb_ld([("Início", f"{SITE}/"), (p["name"], canonical)]))

@@ -116,6 +116,7 @@ MAPS_URL = BUSINESS["google_profile"]
 MAPS_EMBED_Q = "-23.675082,-46.6903611"
 
 GTM = "GTM-M7ZGPMRT"
+CLARITY_ID = "ro2ycwebcc"
 LEADHUB_KEY = "pk_a7a9316b735740da9eaf41651eeba41a"
 LEADHUB_PRIV = f"https://leadinghub.netlify.app/privacidade/{LEADHUB_KEY}"
 
@@ -938,6 +939,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 }})(window,document,'script','dataLayer','{GTM}');</script>
 <!-- End Google Tag Manager -->
+<!-- Microsoft Clarity (sem cookies até o aceite no banner; ver syncClarityConsent em script.js) -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){{
+        c[a]=c[a]||function(){{(c[a].q=c[a].q||[]).push(arguments)}};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    }})(window, document, "clarity", "script", "{CLARITY_ID}");
+    window.clarity("consentv2", {{ ad_Storage: "denied", analytics_Storage: "denied" }});
+</script>
+<!-- End Microsoft Clarity -->
 <!-- Lead Hub -->
 <script src="https://leadinghub.netlify.app/tracker.js" data-key="{LEADHUB_KEY}" data-consent="banner" async></script>
 <!-- End Lead Hub -->
@@ -1310,6 +1321,18 @@ def contact_section(p):
     <form class="form" id="contactForm" method="POST" name="contato-{p['slug']}" data-netlify="true" netlify-honeypot="bot-field">
       <input type="hidden" name="form-name" value="contato-{p['slug']}">
       <p class="hp-field"><label>Não preencher: <input name="bot-field"></label></p>
+      <input type="hidden" name="origem_canal" value="">
+      <input type="hidden" name="origem_fonte" value="">
+      <input type="hidden" name="origem_midia" value="">
+      <input type="hidden" name="origem_campanha" value="">
+      <input type="hidden" name="origem_anuncio" value="">
+      <input type="hidden" name="origem_termo" value="">
+      <input type="hidden" name="origem_click_id" value="">
+      <input type="hidden" name="origem_referrer" value="">
+      <input type="hidden" name="origem_entrada" value="">
+      <input type="hidden" name="origem_primeiro_contato" value="">
+      <input type="hidden" name="origem_sessao" value="">
+      <input type="hidden" name="origem_detalhes" value="">
       <label>
         Nome
         <input type="text" id="fname" name="fname" required placeholder="Seu nome completo" autocomplete="name">

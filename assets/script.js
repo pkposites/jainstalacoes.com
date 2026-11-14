@@ -6,66 +6,279 @@ window.dataLayer = window.dataLayer || [];
 const WHATSAPP_NUMBER = '551150922446';
 
 function trackConversion(eventName, extra) {
-  window.dataLayer.push(Object.assign({ event: eventName }, extra || {}));
+  const src = (typeof leadSource === 'object' && leadSource) || {};
+  window.dataLayer.push(Object.assign({ event: eventName, lead_channel: src.channel, lead_source: src.source, lead_medium: src.medium }, extra || {}));
+  if (typeof window.clarity === 'function') {
+    try { window.clarity('event', eventName); window.clarity('upgrade', eventName); } catch (e) {}
+  }
 }
 
-// Captura de origem do lead: UTMs + parâmetros dinâmicos do Meta Ads/Google Ads.
-// Gravados em sessionStorage assim que aparecem na URL, pra não perder a
-// origem se o usuário navegar pela página antes de preencher o formulário.
-const LEAD_SOURCE_STORAGE_KEY = 'ja_lead_source';
-const LEAD_SOURCE_PARAMS = [
-  'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
-  'campaign_name', 'campaign_id', 'adset_name', 'adset_id', 'ad_name', 'ad_id',
-  'fbclid', 'gclid'
+// ===================== Origem do tráfego (atribuição) =====================
+// Captura tudo o que dá para saber de onde veio o visitante:
+// - parâmetros UTM e IDs de clique de todas as plataformas de anúncio;
+// - parâmetros dinâmicos do Meta Ads e do Google Ads (ValueTrack);
+// - o site de onde a pessoa veio (busca orgânica, rede social, IA, e-mail…);
+// - primeiro contato (first touch) e último contato (last touch), página de
+//   entrada, páginas vistas e número da visita.
+// Sem consentimento de cookies tudo fica só na aba (sessionStorage). Com o
+// consentimento aceito no banner, o primeiro contato passa a ser lembrado no
+// aparelho (localStorage), para atribuir quem volta dias depois.
+const LEAD_SOURCE_STORAGE_KEY = 'ja_lead_source';      // último contato (sessão)
+const FIRST_TOUCH_KEY = 'ja_first_touch';              // primeiro contato
+const SESSION_KEY = 'ja_session';                      // entrada e páginas vistas
+const VISITS_KEY = 'ja_visits';
+
+const UTM_PARAMS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id',
+  'utm_source_platform', 'utm_creative_format', 'utm_marketing_tactic'];
+// Meta Ads (parâmetros de URL dinâmicos) e Google Ads (ValueTrack)
+const AD_PARAMS = ['campaign_name', 'campaign_id', 'adset_name', 'adset_id', 'ad_name', 'ad_id', 'placement',
+  'site_source_name', 'gad_source', 'gad_campaignid', 'campaignid', 'adgroupid', 'keyword', 'matchtype',
+  'network', 'device', 'creative', 'targetid', 'loc_physical_ms', 'loc_interest_ms', 'ref', 'src'];
+const CLICK_IDS = {
+  gclid: 'Google Ads', gbraid: 'Google Ads', wbraid: 'Google Ads', dclid: 'Google Display & Video 360',
+  fbclid: 'Meta (Facebook/Instagram)', msclkid: 'Microsoft Ads (Bing)', ttclid: 'TikTok Ads',
+  li_fat_id: 'LinkedIn Ads', twclid: 'X (Twitter) Ads', epik: 'Pinterest Ads', sccid: 'Snapchat Ads',
+  yclid: 'Yandex Ads', srsltid: 'Google (resultado orgânico)'
+};
+const LEAD_SOURCE_PARAMS = UTM_PARAMS.concat(AD_PARAMS, Object.keys(CLICK_IDS));
+
+const REFERRER_RULES = [
+  // [canal, nome, regex do domínio]
+  ['IA (assistente)', 'ChatGPT', /(^|\.)(chatgpt\.com|chat\.openai\.com|openai\.com)$/],
+  ['IA (assistente)', 'Perplexity', /(^|\.)perplexity\.ai$/],
+  ['IA (assistente)', 'Claude', /(^|\.)claude\.ai$/],
+  ['IA (assistente)', 'Gemini', /^(gemini|bard)\.google\.com$/],
+  ['IA (assistente)', 'Copilot', /^copilot\.microsoft\.com$/],
+  ['IA (assistente)', 'Meta AI', /(^|\.)meta\.ai$/],
+  ['IA (assistente)', 'DeepSeek', /(^|\.)deepseek\.com$/],
+  ['IA (assistente)', 'Grok', /(^|\.)(grok\.com|x\.ai)$/],
+  ['IA (assistente)', 'Poe/You.com', /(^|\.)(poe\.com|you\.com)$/],
+  ['E-mail', 'Gmail', /^mail\.google\.com$/],
+  ['E-mail', 'Outlook', /(^|\.)(outlook\.live\.com|outlook\.office\.com|outlook\.office365\.com)$/],
+  ['E-mail', 'Yahoo Mail', /^mail\.yahoo\./],
+  ['Google Maps', 'Google Maps', /^maps\.google\./],
+  ['Busca orgânica', 'Google', /(^|\.)google\.[a-z.]+$/],
+  ['Busca orgânica', 'Bing', /(^|\.)bing\.com$/],
+  ['Busca orgânica', 'Yahoo', /(^|\.)yahoo\.[a-z.]+$/],
+  ['Busca orgânica', 'DuckDuckGo', /(^|\.)duckduckgo\.com$/],
+  ['Busca orgânica', 'Ecosia', /(^|\.)ecosia\.org$/],
+  ['Busca orgânica', 'Brave Search', /^search\.brave\.com$/],
+  ['Busca orgânica', 'Yandex', /(^|\.)yandex\./],
+  ['Busca orgânica', 'Baidu', /(^|\.)baidu\.com$/],
+  ['Rede social', 'Facebook', /(^|\.)(facebook\.com|fb\.com|fb\.me)$/],
+  ['Rede social', 'Instagram', /(^|\.)instagram\.com$/],
+  ['Rede social', 'WhatsApp', /(^|\.)(whatsapp\.com|wa\.me)$/],
+  ['Rede social', 'YouTube', /(^|\.)(youtube\.com|youtu\.be)$/],
+  ['Rede social', 'TikTok', /(^|\.)tiktok\.com$/],
+  ['Rede social', 'LinkedIn', /(^|\.)(linkedin\.com|lnkd\.in)$/],
+  ['Rede social', 'X (Twitter)', /(^|\.)(t\.co|twitter\.com|x\.com)$/],
+  ['Rede social', 'Pinterest', /(^|\.)pinterest\.[a-z.]+$/],
+  ['Rede social', 'Threads', /(^|\.)threads\.(net|com)$/],
+  ['Rede social', 'Reddit', /(^|\.)reddit\.com$/],
+  ['Rede social', 'Telegram', /(^|\.)(t\.me|telegram\.org)$/],
+  ['Rede social', 'Kwai', /(^|\.)kwai\./]
 ];
+const PAID_MEDIUM = /^(cpc|ppc|paid|paidsearch|paid_search|paid[-_ ]?social|cpm|cpv|display|ads?|anuncio|retargeting|remarketing)$/i;
+
+function consentGranted() {
+  try { return !!(window.LeadHub && window.LeadHub.consentStatus && window.LeadHub.consentStatus() === 'granted'); }
+  catch (e) { return false; }
+}
+function readJSON(key) {
+  try {
+    return JSON.parse(sessionStorage.getItem(key) || localStorage.getItem(key) || 'null');
+  } catch (e) { return null; }
+}
+function writeJSON(key, value) {
+  try { sessionStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+  if (consentGranted()) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {} }
+}
+
+function refererHost() {
+  try {
+    if (!document.referrer) return '';
+    const host = new URL(document.referrer).hostname.replace(/^www\./, '');
+    const own = location.hostname.replace(/^www\./, '');
+    return host === own || host.endsWith('.' + own) || host.endsWith('jainstalacoes.com') ? '' : host;
+  } catch (e) { return ''; }
+}
+
+// Classifica a visita atual. Devolve null se for navegação interna sem nada novo.
+function classifyTouch(params) {
+  const host = refererHost();
+  const touch = { ts: new Date().toISOString(), landing_page: location.pathname, referrer: host || '' };
+  LEAD_SOURCE_PARAMS.forEach((k) => { const v = params.get(k); if (v) touch[k] = v.slice(0, 200); });
+  const clickKey = Object.keys(CLICK_IDS).find((k) => touch[k]);
+
+  if (touch.utm_source) {
+    touch.source = touch.utm_source;
+    touch.medium = touch.utm_medium || '(não informado)';
+    touch.channel = PAID_MEDIUM.test(touch.medium) || (clickKey && clickKey !== 'srsltid') ? 'Anúncio pago'
+      : /e-?mail|newsletter/i.test(touch.medium) ? 'E-mail'
+      : /social/i.test(touch.medium) ? 'Rede social'
+      : /gmb|gbp|google[-_ ]?business|maps|local/i.test(touch.source + ' ' + touch.medium) ? 'Google Maps'
+      : /qr|offline|panfleto|adesivo|carro|cartao/i.test(touch.source + ' ' + touch.medium) ? 'Offline (QR/impresso)'
+      : 'Campanha (UTM)';
+  } else if (clickKey && clickKey !== 'srsltid') {
+    touch.channel = 'Anúncio pago';
+    touch.source = CLICK_IDS[clickKey];
+    touch.medium = 'cpc';
+  } else if (host) {
+    const rule = REFERRER_RULES.find((r) => r[2].test(host));
+    touch.channel = rule ? rule[0] : 'Indicação (outro site)';
+    touch.source = rule ? rule[1] : host;
+    touch.medium = rule ? ({ 'Busca orgânica': 'organic', 'Rede social': 'social', 'E-mail': 'email', 'IA (assistente)': 'ai', 'Google Maps': 'maps' }[rule[0]]) : 'referral';
+    if (rule && rule[1] === 'Instagram' && params.get('igshid')) touch.medium = 'social (link compartilhado)';
+  } else if (clickKey === 'srsltid') {
+    touch.channel = 'Busca orgânica'; touch.source = 'Google'; touch.medium = 'organic';
+  } else {
+    return null; // direto ou navegação interna: não sobrescreve a origem já conhecida
+  }
+  if (clickKey) touch.click_id_type = clickKey;
+  return touch;
+}
+
+function deviceType() {
+  const ua = navigator.userAgent || '';
+  if (/iPad|Tablet/i.test(ua)) return 'tablet';
+  return /Mobi|Android|iPhone/i.test(ua) ? 'celular' : 'computador';
+}
 
 function captureLeadSource() {
   try {
-    const stored = JSON.parse(sessionStorage.getItem(LEAD_SOURCE_STORAGE_KEY) || '{}');
     const params = new URLSearchParams(window.location.search);
-    let changed = false;
-    LEAD_SOURCE_PARAMS.forEach((key) => {
-      const value = params.get(key);
-      if (value) { stored[key] = value; changed = true; }
+    const touch = classifyTouch(params);
+
+    // Sessão: página de entrada, páginas vistas
+    let session = readJSON(SESSION_KEY);
+    try { session = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null'); } catch (e) {}
+    if (!session) {
+      session = { started: new Date().toISOString(), entry_page: location.pathname, pages: 0 };
+      let visits = 0;
+      try { visits = parseInt(localStorage.getItem(VISITS_KEY) || '0', 10) || 0; } catch (e) {}
+      session.visit_number = visits + 1;
+      if (consentGranted()) { try { localStorage.setItem(VISITS_KEY, String(session.visit_number)); } catch (e) {} }
+    }
+    if (!captureLeadSource.counted) { session.pages += 1; captureLeadSource.counted = true; }
+    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(session)); } catch (e) {}
+
+    let last = readJSON(LEAD_SOURCE_STORAGE_KEY);
+    try { last = JSON.parse(sessionStorage.getItem(LEAD_SOURCE_STORAGE_KEY) || 'null') || last; } catch (e) {}
+    if (touch) { last = touch; writeJSON(LEAD_SOURCE_STORAGE_KEY, last); }
+    if (!last) {
+      last = { channel: 'Direto', source: '(direto)', medium: '(nenhum)', landing_page: session.entry_page, ts: session.started };
+    }
+
+    let first = readJSON(FIRST_TOUCH_KEY);
+    if (!first) { first = last; writeJSON(FIRST_TOUCH_KEY, first); }
+    else if (consentGranted()) { writeJSON(FIRST_TOUCH_KEY, first); }
+
+    return Object.assign({}, last, {
+      session_entry_page: session.entry_page,
+      pages_viewed: session.pages,
+      visit_number: session.visit_number,
+      device_type: deviceType(),
+      first_channel: first.channel, first_source: first.source, first_medium: first.medium,
+      first_campaign: first.utm_campaign || first.campaign_name || '',
+      first_landing_page: first.landing_page, first_ts: first.ts
     });
-    if (changed) sessionStorage.setItem(LEAD_SOURCE_STORAGE_KEY, JSON.stringify(stored));
-    return stored;
   } catch (e) {
     return {};
   }
 }
 
 function getLeadSource() {
-  const fromUrl = captureLeadSource();
-  if (Object.keys(fromUrl).length > 0) return fromUrl;
-  try {
-    return JSON.parse(sessionStorage.getItem(LEAD_SOURCE_STORAGE_KEY) || '{}');
-  } catch (e) {
-    return {};
-  }
+  return captureLeadSource();
 }
+
+function sourceCampaign(s) { return s.campaign_name || s.utm_campaign || s.gad_campaignid || s.campaignid || ''; }
+function sourceAd(s) { return s.ad_name || s.utm_content || s.creative || s.ad_id || ''; }
 
 // Monta o bloco "Origem do lead:" pra mensagem do WhatsApp/CRM, mostrando
 // só as linhas que tiverem valor.
 function buildLeadSourceBlock(source) {
+  if (!source || !source.channel) return '';
   const lines = [];
-  if (source.utm_source || source.utm_medium) {
-    lines.push(`Canal: ${[source.utm_source, source.utm_medium].filter(Boolean).join(' / ')}`);
-  }
-  const campaign = source.campaign_name || source.utm_campaign;
+  lines.push(`Canal: ${source.channel}${source.source && source.source !== '(direto)' ? ` (${[source.source, source.medium].filter(Boolean).join(' / ')})` : ''}`);
+  const campaign = sourceCampaign(source);
   if (campaign) lines.push(`Campanha: ${campaign}`);
   if (source.adset_name) lines.push(`Conjunto de anúncios: ${source.adset_name}`);
-  const ad = source.ad_name || source.utm_content;
+  const ad = sourceAd(source);
   if (ad) lines.push(`Anúncio: ${ad}`);
-  if (source.utm_term) lines.push(`Termo/Público: ${source.utm_term}`);
-  if (source.fbclid) lines.push('Origem: Meta Ads (Facebook/Instagram)');
-  if (source.gclid) lines.push('Origem: Google Ads');
-
-  if (lines.length === 0) return '';
+  const term = source.utm_term || source.keyword;
+  if (term) lines.push(`Termo/Palavra-chave: ${term}${source.matchtype ? ` (${source.matchtype})` : ''}`);
+  if (source.placement || source.site_source_name) lines.push(`Posicionamento: ${[source.site_source_name, source.placement].filter(Boolean).join(' / ')}`);
+  if (source.landing_page) lines.push(`Página de entrada: ${source.landing_page}`);
+  if (source.first_channel && (source.first_channel !== source.channel || source.first_source !== source.source)) {
+    lines.push(`Primeiro contato: ${source.first_channel} (${source.first_source || '-'})`);
+  }
   return `\n\nOrigem do lead:\n${lines.join('\n')}`;
 }
 
+// Campos achatados para o Netlify Forms (precisam existir como <input hidden> no HTML).
+function leadSourceFields(s) {
+  const clickKey = s.click_id_type;
+  return {
+    origem_canal: s.channel || '',
+    origem_fonte: s.source || '',
+    origem_midia: s.medium || '',
+    origem_campanha: sourceCampaign(s),
+    origem_anuncio: sourceAd(s),
+    origem_termo: s.utm_term || s.keyword || '',
+    origem_click_id: clickKey ? `${clickKey}=${s[clickKey]}` : '',
+    origem_referrer: s.referrer || '',
+    origem_entrada: s.landing_page || '',
+    origem_primeiro_contato: s.first_channel ? `${s.first_channel} | ${s.first_source || ''} | ${s.first_medium || ''} | ${s.first_campaign || ''} | ${s.first_landing_page || ''} | ${s.first_ts || ''}` : '',
+    origem_sessao: `visita ${s.visit_number || 1} | ${s.pages_viewed || 1} página(s) | ${s.device_type || ''}`,
+    origem_detalhes: JSON.stringify(s).slice(0, 1800)
+  };
+}
+
+// Microsoft Clarity: etiquetas de origem para filtrar gravações e mapas de calor.
+function clarityCall() {
+  if (typeof window.clarity === 'function') { try { window.clarity.apply(null, arguments); } catch (e) {} }
+}
+function tagClarity(s) {
+  clarityCall('set', 'canal', s.channel || '');
+  clarityCall('set', 'fonte', s.source || '');
+  clarityCall('set', 'midia', s.medium || '');
+  if (sourceCampaign(s)) clarityCall('set', 'campanha', sourceCampaign(s));
+  if (sourceAd(s)) clarityCall('set', 'anuncio', sourceAd(s));
+  if (s.utm_term || s.keyword) clarityCall('set', 'termo', s.utm_term || s.keyword);
+  if (s.click_id_type) clarityCall('set', 'click_id', s.click_id_type);
+  clarityCall('set', 'primeiro_canal', s.first_channel || '');
+  clarityCall('set', 'pagina_entrada', s.landing_page || '');
+  clarityCall('set', 'visita', String(s.visit_number || 1));
+  clarityCall('set', 'pagina_tipo', (window.JA_PAGE && window.JA_PAGE.slug) || location.pathname.split('/')[1] || 'home');
+}
+
+// Consentimento do Clarity segue o banner do Lead Hub (o mesmo que libera o GTM).
+function syncClarityConsent() {
+  let st = 'pending';
+  try { st = window.LeadHub && window.LeadHub.consentStatus ? window.LeadHub.consentStatus() : 'pending'; } catch (e) {}
+  if (st === syncClarityConsent.last) return;
+  syncClarityConsent.last = st;
+  if (st === 'granted') {
+    clarityCall('consentv2', { ad_Storage: 'granted', analytics_Storage: 'granted' });
+    captureLeadSource(); // grava o primeiro contato no aparelho agora que é permitido
+  } else if (st === 'denied') {
+    clarityCall('consentv2', { ad_Storage: 'denied', analytics_Storage: 'denied' });
+  }
+}
+document.addEventListener('click', (e) => {
+  if (e.target.closest && e.target.closest('[data-leadhub-consent] button')) setTimeout(syncClarityConsent, 0);
+}, true);
+[300, 1500, 4000].forEach((ms) => setTimeout(syncClarityConsent, ms));
+
 const leadSource = getLeadSource();
+tagClarity(leadSource);
+window.dataLayer.push(Object.assign({ event: 'lead_source_ready' }, {
+  lead_channel: leadSource.channel, lead_source: leadSource.source, lead_medium: leadSource.medium,
+  lead_campaign: sourceCampaign(leadSource), lead_ad: sourceAd(leadSource), lead_term: leadSource.utm_term || leadSource.keyword || '',
+  lead_click_id_type: leadSource.click_id_type || '', lead_referrer: leadSource.referrer || '',
+  lead_landing_page: leadSource.landing_page || '', lead_first_channel: leadSource.first_channel || '',
+  lead_first_source: leadSource.first_source || '', lead_visit_number: leadSource.visit_number || 1
+}));
 
 document.querySelectorAll('a[href^="tel:"]').forEach(link => {
   link.addEventListener('click', () => trackConversion('phone_click', { link_location: link.closest('section, header')?.id || link.className }));
@@ -193,7 +406,7 @@ if (leadGateForm) leadGateForm.addEventListener('submit', (e) => {
   const phone = leadPhone.value.trim();
   if (!service || !name || !phone) return;
 
-  const message = `${PAGE.greeting}\n\nServiço: ${service}\nNome: ${name}\nWhatsApp: ${phone}`;
+  const message = `${PAGE.greeting}\n\nServiço: ${service}\nNome: ${name}\nWhatsApp: ${phone}${buildLeadSourceBlock(getLeadSource())}`;
   const baseUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
   window.LeadHub?.set({ 'Serviço': service });
@@ -238,7 +451,7 @@ if (form) {
     const netlifyRequest = fetch('/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: encodeFormData({ 'form-name': form.getAttribute('name'), fname: name, fphone: phone, fservice: service, fregion: region })
+      body: encodeFormData(Object.assign({ 'form-name': form.getAttribute('name'), fname: name, fphone: phone, fservice: service, fregion: region }, leadSourceFields(getLeadSource())))
     }).then((res) => {
       if (!res.ok) throw new Error('HTTP ' + res.status);
     });
